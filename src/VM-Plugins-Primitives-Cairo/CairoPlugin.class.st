@@ -22,7 +22,7 @@ Class {
 
 { #category : 'binding' }
 CairoPlugin class >> bind [
-	"Bind the plugin to the libcairo the FFI uses (CairoLibrary uniqueInstance libraryName, checked with the address of cairo_create the FFI resolves), with the layout table of this image (with the string classes of the text primitive); answer the cairo version (e.g. 11704). Signals CairoPluginError (code: #'no plugin', #runner, #layout, or the failure code of the primitive: #'not found', #'inappropriate operation', #'unsupported operation', #'bad index', #'bad argument')"
+	"Bind the plugin to the libcairo the FFI uses (CairoLibrary uniqueInstance libraryName, checked with the address of cairo_create the FFI resolves), with the layout table of this image (with the string classes of the text primitive); answer the cairo version (e.g. 11806). Signals CairoPluginError (code: #'no plugin', #runner, #layout, or the failure code of the primitive: #'not found', #'inappropriate operation', #'unsupported operation', #'bad index', #'bad argument')"
 
 	| layout |
 	self isAvailable ifFalse: [
@@ -45,7 +45,7 @@ CairoPlugin class >> bind [
 
 { #category : 'binding' }
 CairoPlugin class >> cairoVersion [
-	"The version of the bound cairo (e.g. 11704 for 1.17.4), or nil"
+	"The version of the bound cairo (e.g. 11806 for 1.18.6), or nil"
 
 	^ self info ifNotNil: [ :i | i at: 4 ]
 ]

@@ -63,7 +63,7 @@ Loading `VM-Plugins-Primitives-Cairo` on a VM with the plugin binds it and insta
 - `#text`: a whole `drawString:` in one primitive, for ByteString, ByteSymbol, WideString and WideSymbol (UTF-8 by simdutf, in the plugin).
 
 ```smalltalk
-CairoPlugin info.			"#(1 'CairoPlugin 1.0' 'native' 11704 'loader' nil #()), or nil without the plugin"
+CairoPlugin info.			"#(1 'CairoPlugin 1.0' 'native' 11806 'loader' nil #()), or nil without the plugin"
 CairoPlugin installedGroups.		"#(#basic #shape #text)"
 CairoPlugin uninstall.			"Athens as it was, the FFI everywhere"
 CairoPlugin install: #( #basic ).	"only the one-for-one primitives"

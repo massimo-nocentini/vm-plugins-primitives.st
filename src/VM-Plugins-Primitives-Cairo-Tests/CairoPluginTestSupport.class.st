@@ -4,7 +4,7 @@ I hold what the tests (and the benchmark) of the CairoPlugin need around Athens,
 - the pixels of a surface: `bytesOf:` (a copy of the surface's bytes, which the tests compare exactly), `digestOf:` (their SHA-256, in hex), `quickDigestOf:` (their CRC-32, in hex: SHA-256 takes seconds on a surface of 1000 x 1000);
 - the modes: `setMode:` puts the image in `#ffi` (nothing installed: stock Athens), `#basic` (the one-for-one primitives), `#all` (basic, shape and text) or `#fallback` (every group installed, the plugin unbound, or `forceInstall:` on a VM without the plugin: every patch runs its FFI original);
 - the FFI callouts: `ffiCountsDuring:` answers the Bag of the cairo functions (C names) that the FFI called while a block ran, `ffiCallsDuring:` also the methods that made the calls ('AthensCairoCanvas>>ffiNewPath'): a hook on `TFSameThreadRunner>>#invokeFunction:withArguments:`, put in and taken out quietly (no announcement, nothing logged), around the block only;
-- the cairo state of a canvas: `stateOf:` reads it through test-only FFI getters of cairo, declared with C's own types (`int` for the enums, `double *` for the out arguments: the WebAssembly FFI adapts nothing for them, and finds them in its registry of cairo symbols): the matrix (the bits of its 6 doubles), the source (the status of cairo_pattern_get_rgba and, for a solid one, its RGBA), the line width, join and cap, the dashes and their offset, whether there is a current point, the fill rule, the operator, the font matrix, the antialiasing and the scaled font;
+- the cairo state of a canvas: `stateOf:` reads it through test-only FFI getters of cairo, declared with C's own types (`int` for the enums, `double *` for the out arguments: the WebAssembly FFI adapts nothing for them, and finds them in its registry of cairo symbols): the matrix (the bits of its 6 doubles), the source (the status of cairo_pattern_get_rgba and, for a solid one, its RGBA), the line width, join and cap, the dashes and their offset, whether there is a current point, the fill rule, the operator, the font matrix, the antialiasing and the scaled font, compared by content (`scaledFontKey:`: its font face, font matrix, CTM, options and status), not by address: cairo 1.18.6 no longer finds a toy font's scaled font in its global cache (its key compares the implementation face since commit 46d1e26c), so a fresh canvas can get a new scaled font of the same content;
 - running a primitive of the plugin with no fallback: `primitive:receiver:arguments:` (see `CairoPluginTestPrimitives`);
 - `implementedGroups`: the groups whose primitives the bound plugin really implements (the stub plugin of a partial build answers #'unsupported operation' to every drawing primitive);
 - `warmUp:` draws every scene once in #ffi mode and collects the garbage, so that uFFI has generated every callout.
@@ -110,6 +110,54 @@ CairoPluginTestSupport class >> cairoPatternRGBA: pattern r: r g: g b: b a: a [
 CairoPluginTestSupport class >> cairoScaledFont: cr [
 
 	^ self ffiCall: #(void* cairo_get_scaled_font (void* cr))
+]
+
+{ #category : 'state - getters' }
+CairoPluginTestSupport class >> cairoFontOptionsCreate [
+
+	^ self ffiCall: #(void* cairo_font_options_create ())
+]
+
+{ #category : 'state - getters' }
+CairoPluginTestSupport class >> cairoFontOptionsDestroy: options [
+
+	^ self ffiCall: #(void cairo_font_options_destroy (void* options))
+]
+
+{ #category : 'state - getters' }
+CairoPluginTestSupport class >> cairoFontOptionsHash: options [
+
+	^ self ffiCall: #(ulong cairo_font_options_hash (void* options))
+]
+
+{ #category : 'state - getters' }
+CairoPluginTestSupport class >> cairoScaledFontCTM: scaledFont into: aMatrix [
+
+	^ self ffiCall: #(void cairo_scaled_font_get_ctm (void* scaledFont, double* aMatrix))
+]
+
+{ #category : 'state - getters' }
+CairoPluginTestSupport class >> cairoScaledFontFace: scaledFont [
+
+	^ self ffiCall: #(void* cairo_scaled_font_get_font_face (void* scaledFont))
+]
+
+{ #category : 'state - getters' }
+CairoPluginTestSupport class >> cairoScaledFontFontMatrix: scaledFont into: aMatrix [
+
+	^ self ffiCall: #(void cairo_scaled_font_get_font_matrix (void* scaledFont, double* aMatrix))
+]
+
+{ #category : 'state - getters' }
+CairoPluginTestSupport class >> cairoScaledFontOptions: scaledFont into: options [
+
+	^ self ffiCall: #(void cairo_scaled_font_get_font_options (void* scaledFont, void* options))
+]
+
+{ #category : 'state - getters' }
+CairoPluginTestSupport class >> cairoScaledFontStatus: scaledFont [
+
+	^ self ffiCall: #(int cairo_scaled_font_status (void* scaledFont))
 ]
 
 { #category : 'state - getters' }
@@ -367,8 +415,30 @@ CairoPluginTestSupport class >> stateOf: aCanvas [
 	self cairoFontMatrix: cr into: fm.
 	state add: #fontMatrix -> ((1 to: 6) collect: [ :i | (fm doubleAt: i - 1 * 8 + 1) asIEEE64BitWord ]).
 	state add: #antialias -> (self cairoAntialias: cr).
-	state add: #scaledFont -> (self cairoScaledFont: cr) asInteger.
+	state add: #scaledFont -> (self scaledFontKey: (self cairoScaledFont: cr)).
 	^ state asArray
+]
+
+{ #category : 'state' }
+CairoPluginTestSupport class >> scaledFontKey: aScaledFont [
+	"The content of aScaledFont (a cairo_scaled_font_t *), comparable with =: { the address of its font face. the bits of its font matrix (6 doubles). the bits of its CTM (6 doubles). the hash of its font options. its status }.
+	Not its address: cairo 1.18.6 (commit 46d1e26c, in _cairo_scaled_font_keys_equal) compares the implementation face in the key of its global cache of scaled fonts, so a toy font is no longer found there and a fresh canvas can get a new scaled font of the same content (1.17.4 answered the cached one). The faces stay put: a toy face lives in cairo's hash of toy faces while a scaled font (or a holdover) holds it, and Athens holds its FreeType faces"
+
+	| fm ctm options hash |
+	fm := ByteArray new: 48.
+	self cairoScaledFontFontMatrix: aScaledFont into: fm.
+	ctm := ByteArray new: 48.
+	self cairoScaledFontCTM: aScaledFont into: ctm.
+	options := self cairoFontOptionsCreate.
+	hash := [
+	        self cairoScaledFontOptions: aScaledFont into: options.
+	        self cairoFontOptionsHash: options ] ensure: [ self cairoFontOptionsDestroy: options ].
+	^ {
+		  (self cairoScaledFontFace: aScaledFont) asInteger.
+		  ((1 to: 6) collect: [ :i | (fm doubleAt: i - 1 * 8 + 1) asIEEE64BitWord ]).
+		  ((1 to: 6) collect: [ :i | (ctm doubleAt: i - 1 * 8 + 1) asIEEE64BitWord ]).
+		  hash.
+		  (self cairoScaledFontStatus: aScaledFont) }
 ]
 
 { #category : 'modes' }
