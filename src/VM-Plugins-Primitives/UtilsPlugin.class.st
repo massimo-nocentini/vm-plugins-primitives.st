@@ -5,7 +5,8 @@ The plugin has the primitives of:
 - `Float>>#times:plus:`, the fused multiply-add (C's `fma`: one rounding);
 - `String>>#strtok:inclusive:`, the pieces of a string between delimiters;
 - `SequenceableCollection>>#bezierPointsAt:` and my `deCasteljau:into:at:`, the points of a Bezier curve;
-- `KnuthRandom`, the lagged Fibonacci generator of Knuth's TAOCP 3.6 (his `rng-double.c`).
+- `KnuthRandom`, the lagged Fibonacci generator of Knuth's TAOCP 3.6 (his `rng-double.c`);
+- `SplitMix64`, Vigna's generator of 64-bit integers (his `splitmix64.c`), since version 1.1 of the plugin.
 
 Each of them tries the plugin first and, when the VM has no UtilsPlugin or the primitive fails (an argument it does not take), answers through its Smalltalk twin in `UtilsPluginSmalltalk`, which answers the same result, bit for bit, or signals the error. So the code works on any VM, and the plugin only makes it faster.
 

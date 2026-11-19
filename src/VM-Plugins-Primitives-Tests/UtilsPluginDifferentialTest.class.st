@@ -109,6 +109,42 @@ UtilsPluginDifferentialTest >> testKnuth [
 ]
 
 { #category : 'tests' }
+UtilsPluginDifferentialTest >> testSplitMix64 [
+
+	1 to: 60 do: [ :round |
+		| seed plugin smalltalk mixed byPlugin bySmalltalk |
+		"seeds of every size, the edges of 64 bits too"
+		seed := round <= 6
+			        ifTrue: [ #( 0 1 -1 16rFFFFFFFFFFFFFFFF 16r61C8864680B583EB 16r8000000000000000 ) at: round ]
+			        ifFalse: [ (random nextInteger: (2 raisedTo: (random nextInteger: 70))) - 1 ].
+		plugin := SplitMix64 seed: seed.
+		UtilsPlugin pluginHidden: true.
+		smalltalk := SplitMix64 seed: seed.
+		UtilsPlugin pluginHidden: false.
+		mixed := SplitMix64 seed: seed.
+		1 to: 300 do: [ :index |
+			| expected fraction |
+			expected := plugin nextInteger64.
+			fraction := plugin next.
+			UtilsPlugin pluginHidden: true.
+			self assert: smalltalk nextInteger64 equals: expected.
+			self assert: (self float: smalltalk next isSameAs: fraction).
+			"a state goes from one way to the other"
+			UtilsPlugin pluginHidden: index \\ 3 = 0.
+			self assert: mixed nextInteger64 equals: expected.
+			UtilsPlugin pluginHidden: index \\ 5 = 0.
+			self assert: (self float: mixed next isSameAs: fraction).
+			UtilsPlugin pluginHidden: false ].
+		"the bulk primitive against the twin"
+		byPlugin := DoubleWordArray new: (random nextInteger: 200).
+		bySmalltalk := DoubleWordArray new: byPlugin size.
+		self assert: (plugin primOutputsOf: plugin state into: byPlugin) identicalTo: byPlugin.
+		UtilsPluginSmalltalk splitMix64OutputsOf: smalltalk state into: bySmalltalk.
+		self assert: byPlugin equals: bySmalltalk.
+		self assert: plugin state first equals: smalltalk state first ]
+]
+
+{ #category : 'tests' }
 UtilsPluginDifferentialTest >> testStrtok [
 
 	| alphabet |

@@ -61,7 +61,7 @@ UtilsPluginPrimitiveTest >> testInfo [
 	info := UtilsPlugin info.
 	self assert: info size equals: 3.
 	self assert: info first equals: 1.
-	self assert: info second equals: 'UtilsPlugin 1.0'.
+	self assert: info second equals: 'UtilsPlugin 1.1'.
 	self assert: (#( 'native' 'emscripten' ) includes: info third)
 ]
 
@@ -87,6 +87,50 @@ UtilsPluginPrimitiveTest >> testKnuthFailures [
 	self assert: random primStart isNil.
 	random instVarNamed: #seed put: 3.
 	self assert: random primStart identicalTo: random
+]
+
+{ #category : 'tests' }
+UtilsPluginPrimitiveTest >> testSplitMix64Failures [
+	"The state is a writable DoubleWordArray of 1, the array to fill a writable non-empty DoubleWordArray apart from it; a failure writes nothing"
+
+	| random state badStates array |
+	random := SplitMix64 seed: 0.
+	state := DoubleWordArray with: 0.
+	self assert: (random primNext: state) equals: 16rE220A8397B1DCDAF.
+	self assert: state first equals: 16r9E3779B97F4A7C15.
+	self assert: (random primNextFloat: (DoubleWordArray with: 0)) equals: (Float fromIEEE64Bit: 16r3FEC4415072F63B9).
+	"SmallIntegers too: the output of the state 0 is 0"
+	self assert: (random primNext: (DoubleWordArray with: (2 raisedTo: 64) - 16r9E3779B97F4A7C15)) identicalTo: 0.
+	badStates := {
+		nil. 3. (2 raisedTo: 70). #( 0 ). DoubleWordArray new. DoubleWordArray new: 2.
+		ByteArray new: 8. WordArray new: 2. (DoubleByteArray new: 4). Float pi. 'abcdefgh' }.
+	badStates do: [ :each |
+		self assert: (random primNext: each) isNil description: [ each printString ].
+		self assert: (random primNextFloat: each) isNil description: [ each printString ].
+		self assert: (random primOutputsOf: each into: (DoubleWordArray new: 2)) isNil description: [ each printString ].
+		self should: [ UtilsPluginSmalltalk splitMix64Next: each ] raise: Error ].
+	state := self readOnly: (DoubleWordArray with: 5).
+	self assert: (random primNext: state) isNil.
+	self assert: (random primNextFloat: state) isNil.
+	self assert: (random primOutputsOf: state into: (DoubleWordArray new: 2)) isNil.
+	self assert: state first equals: 5.
+	self should: [ UtilsPluginSmalltalk splitMix64Next: state ] raise: Error.
+	"the array to fill"
+	state := DoubleWordArray with: 5.
+	{ nil. #( 0 0 ). DoubleWordArray new. ByteArray new: 16. WordArray new: 4. DoubleByteArray new: 8. self readOnly: (DoubleWordArray new: 2). state }
+		do: [ :each |
+			self assert: (random primOutputsOf: state into: each) isNil description: [ each printString ].
+			self assert: state first equals: 5 ].
+	self should: [ UtilsPluginSmalltalk splitMix64OutputsOf: state into: state ] raise: Error.
+	self should: [ UtilsPluginSmalltalk splitMix64OutputsOf: state into: (WordArray new: 2) ] raise: Error.
+	self should: [ UtilsPluginSmalltalk splitMix64OutputsOf: state into: (self readOnly: (DoubleWordArray new: 2)) ] raise: Error.
+	self assert: state first equals: 5.
+	"the twin takes an empty one, which the primitive refuses"
+	self assert: (UtilsPluginSmalltalk splitMix64OutputsOf: state into: DoubleWordArray new) isEmpty.
+	array := DoubleWordArray new: 3.
+	self assert: (random primOutputsOf: state into: array) identicalTo: array.
+	self assert: array asArray equals: ((SplitMix64 seed: 5) nextIntegers64: 3) asArray.
+	self assert: state first equals: (5 + (3 * 16r9E3779B97F4A7C15) bitAnd: 16rFFFFFFFFFFFFFFFF)
 ]
 
 { #category : 'tests' }

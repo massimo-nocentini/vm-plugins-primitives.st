@@ -5,6 +5,7 @@ I am the Smalltalk twin of the UtilsPlugin (see `UtilsPlugin`): each of my class
 - `split:by:inclusive:` is the splitting of `primitive_strtok_r`.
 - `deCasteljau:into:at:` repeats the roundings of the engine's `up_bezier`, in the same order, with my `fma:times:plus:` and an IEEE division (no ZeroDivide).
 - `newKnuthState`, `knuthStart:seed:` and `knuthNext:` translate `ranf_start`, `ranf_array` and `ranf_arr_next` of Knuth's `rng-double.c` (TAOCP 3.6, 3rd edition, 9th printing), which the plugin runs unchanged, on the same state: { ByteArray of the 100 doubles of ran_u. ByteArray of the 1009 doubles of the buffer. 1-based index of its next fraction }. A state may go from the plugin to me and back.
+- `splitMix64Next:`, `splitMix64NextFloat:` and `splitMix64OutputsOf:into:` translate `next()` of Vigna's `splitmix64.c`, which the plugin runs unchanged, on the same state, a DoubleWordArray of 1 (his x), each product and sum taken modulo 2^64.
 "
 Class {
 	#name : 'UtilsPluginSmalltalk',
@@ -225,6 +226,38 @@ UtilsPluginSmalltalk class >> ranfStart: anInteger [
 	^ ranU
 ]
 
+{ #category : 'SplitMix64' }
+UtilsPluginSmalltalk class >> splitMix64Next: state [
+	"Answer the next output of state, an Integer in [0, 2^64), and advance it: Vigna's next(), whose x is the element of state"
+
+	| x |
+	self checkSplitMix64State: state.
+	x := (state at: 1) + self splitMix64Gamma bitAnd: self splitMix64Mask.
+	state at: 1 put: x.
+	^ self splitMix64Mix: x
+]
+
+{ #category : 'SplitMix64' }
+UtilsPluginSmalltalk class >> splitMix64NextFloat: state [
+	"Answer the fraction of the next output of state, a Float in [0, 1): its top 53 bits times 2^-53 (exact), and advance it"
+
+	^ ((self splitMix64Next: state) bitShift: -11) asFloat timesTwoPower: -53
+]
+
+{ #category : 'SplitMix64' }
+UtilsPluginSmalltalk class >> splitMix64OutputsOf: state into: aDoubleWordArray [
+	"Store the next outputs of state in the elements of aDoubleWordArray, in order, advance state as many times, and answer aDoubleWordArray (as primitive_splitmix64_fill, which takes no empty one)"
+
+	self checkSplitMix64State: state.
+	(aDoubleWordArray class isDoubleWords and: [ aDoubleWordArray ~~ state ])
+		ifFalse: [ ^ self error: 'Not a DoubleWordArray apart from the state of a SplitMix64' ].
+	aDoubleWordArray isReadOnlyObject ifTrue: [
+		^ self error: 'The DoubleWordArray to fill is read-only' ].
+	1 to: aDoubleWordArray size do: [ :index |
+		aDoubleWordArray at: index put: (self splitMix64Next: state) ].
+	^ aDoubleWordArray
+]
+
 { #category : 'splitting' }
 UtilsPluginSmalltalk class >> split: aString by: delimiters inclusive: aBoolean [
 	"The pieces of aString between the characters of delimiters (a String, a ByteArray of their values, or a collection of Characters), as primitive_strtok_r: with aBoolean false the maximal runs of non-delimiters, with aBoolean true every field between delimiters, empty ones too, but an empty last one"
@@ -271,6 +304,16 @@ UtilsPluginSmalltalk class >> checkKnuthState: state [
 	(state isReadOnlyObject or: [
 		 (state at: 1) isReadOnlyObject or: [ (state at: 2) isReadOnlyObject ] ])
 		ifTrue: [ ^ self error: 'The state of a KnuthRandom is read-only' ]
+]
+
+{ #category : 'private' }
+UtilsPluginSmalltalk class >> checkSplitMix64State: state [
+	"Signal an error unless state is the state of a SplitMix64 that may be updated, as the plugin's checks: a writable DoubleWordArray of 1"
+
+	(state class isDoubleWords and: [ state size = 1 ]) ifFalse: [
+		^ self error: 'Not the state of a SplitMix64' ].
+	state isReadOnlyObject ifTrue: [
+		^ self error: 'The state of a SplitMix64 is read-only' ]
 ]
 
 { #category : 'private' }
@@ -348,4 +391,28 @@ UtilsPluginSmalltalk class >> put: floats into: aByteArray [
 
 	floats doWithIndex: [ :each :index |
 		aByteArray float64AtOffset: index - 1 * 8 put: each ]
+]
+
+{ #category : 'private' }
+UtilsPluginSmalltalk class >> splitMix64Gamma [
+	"The odd constant that Vigna's next() adds to x: 2^64 divided by the golden ratio, made odd"
+
+	^ 16r9E3779B97F4A7C15
+]
+
+{ #category : 'private' }
+UtilsPluginSmalltalk class >> splitMix64Mask [
+
+	^ 16rFFFFFFFFFFFFFFFF
+]
+
+{ #category : 'private' }
+UtilsPluginSmalltalk class >> splitMix64Mix: x [
+	"The output of Vigna's next() for the new x: a bijection of the integers of 64 bits"
+
+	| z mask |
+	mask := self splitMix64Mask.
+	z := (x bitXor: (x bitShift: -30)) * 16rBF58476D1CE4E5B9 bitAnd: mask.
+	z := (z bitXor: (z bitShift: -27)) * 16r94D049BB133111EB bitAnd: mask.
+	^ z bitXor: (z bitShift: -31)
 ]

@@ -2,7 +2,7 @@
 
 The Smalltalk side of two plugins of the Pharo VM (Pharo 12 to 15):
 
-- the **UtilsPlugin**: four small primitives in C, each with a Smalltalk twin that answers the same bits when the VM has no plugin;
+- the **UtilsPlugin**: five small features in C, each with a Smalltalk twin that answers the same bits when the VM has no plugin;
 - the **CairoPlugin**: Athens drawing through cairo with named primitives instead of the callouts of the FFI, opt-in (see [CairoPlugin](#cairoplugin)).
 
 ```smalltalk
@@ -37,6 +37,11 @@ three' linesIncludeEmptySubstrings: true.		"#('one' 'two' '' 'three'), as #lines
 "Knuth's lagged Fibonacci generator (TAOCP 3.6), a Random"
 (KnuthRandom seed: 310952) next: 3.
 (1 to: 10) asArray shuffleBy: KnuthRandom new.
+
+"Vigna's SplitMix64: 64-bit outputs, each value once per period of 2^64, a Random"
+(SplitMix64 seed: 0) nextInteger64.		"16rE220A8397B1DCDAF"
+(SplitMix64 seed: 1234567) nextIntegers64: 4.	"a DoubleWordArray, to seed another generator"
+SplitMix64 new next.				"a Float in [0, 1), from the top 53 bits"
 ```
 
 Each method:
@@ -86,11 +91,12 @@ CairoPlugin counters.			"the cairo calls made by the plugin, by function"
 - **`strtok:inclusive:` treats every delimiter character on its own**, so CR LF makes an empty field when `inclusive` is true. `linesIncludeEmptySubstrings:` follows `#lines`, where CR LF ends one line.
 - **The Bézier scheme** is that of the original plugin: a recurrence of fused products and sums. t = 0 answers the first control point and t = 1 the last one. Outside [0, 1] it extrapolates, with IEEE infinities and NaNs where it divides by zero.
 - **`KnuthRandom`** keeps its state in the `state` of `Random`, plain objects that survive an image save. Only the low 30 bits of the seed count, as in Knuth's code. Its Smalltalk twin translates Knuth's `ranf_start` and `ranf_array`, and checks his own test value.
+- **`SplitMix64`** keeps its 64-bit state in the `state` of `Random`, a DoubleWordArray of 1, as `Random` does: any integer seeds it, modulo 2^64. `nextInteger64` answers an output in [0, 2^64), `next` a Float from its top 53 bits, and `fill:` or `nextIntegers64:` many outputs at once (one primitive). It needs version 1.1 of the plugin; with an older one it answers through its Smalltalk twin.
 
 ## History
 
-This repository first held the Smalltalk side of the plugins of the `pharo-10` branch of pharo-vm: Cairo and Pango, DateTimeFormatter, an older timsort, and these primitives. It now holds the four features of the UtilsPlugin of `pharo-12`, and the Smalltalk side of the CairoPlugin of `pharo-12`, a new design (patches of Athens-Cairo installed at run time, on the cairo the FFI loads); the old code is in its history. The timsort lives in [timsort.st](https://github.com/massimo-nocentini/timsort.st).
+This repository first held the Smalltalk side of the plugins of the `pharo-10` branch of pharo-vm: Cairo and Pango, DateTimeFormatter, an older timsort, and these primitives. It now holds the features of the UtilsPlugin of `pharo-12` (four ported ones, and SplitMix64), and the Smalltalk side of the CairoPlugin of `pharo-12`, a new design (patches of Athens-Cairo installed at run time, on the cairo the FFI loads); the old code is in its history. The timsort lives in [timsort.st](https://github.com/massimo-nocentini/timsort.st).
 
 ## Licence
 
-MIT (`LICENSE`). The plugin runs Knuth's `rng-double.c` unchanged; it is in the public domain "as long as you make absolutely no changes", and `UtilsPluginSmalltalk` is a translation of it.
+MIT (`LICENSE`). The plugin runs Knuth's `rng-double.c` unchanged; it is in the public domain "as long as you make absolutely no changes", and `UtilsPluginSmalltalk` is a translation of it. It runs Sebastiano Vigna's `splitmix64.c` unchanged too, which he dedicated to the public domain; `UtilsPluginSmalltalk` translates it as well.
