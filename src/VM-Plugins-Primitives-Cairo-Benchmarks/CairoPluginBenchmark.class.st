@@ -11,7 +11,7 @@ switched with the installer (`CairoPluginTestSupport setMode:`; from the second 
 
 ## The scenes
 
-- those of `CairoPluginScenes` (`a-polyline`, `a2-lines`, `b-rects`, `c-bezier`, `d-transforms`, `e-text` and its variants `e-text-wide` (WideStrings) and `e-text-long` (strings of 2000 characters, one WideString in four)),
+- those of `CairoPluginScenes` (`a-polyline`, `a2-lines`, `b-rects`, `c-bezier`, `d-transforms`, `e-text` and its variants `e-text-wide` (WideStrings) and `e-text-long` (strings of 2000 characters, one `WideString` in four)),
 - the Roassal graph drawn by `RSAthensRenderer` with its paths built at each run (`f-roassal-first`) or cached (`f-roassal-cached`),
 - the same on an SVG surface (`g-roassal-svg-first/cached`),
 - and `h-morph-frame`: an `RSAthensMorph` of that graph drawn on a `FormCanvas` of 800 x 600, end to end (Roassal, then `asForm` and the SurfacePlugin callbacks of BitBlt, which stay on the FFI);
@@ -68,16 +68,14 @@ The three count as failures (`runOn:` answers their number). A line `CALLS` list
 
 The parameters come from the environment (`fromEnvironment`):
 
-| Variable | Value |
-|---|---|
-| `CP_BENCH_SCENES` | names separated by commas, default all and `micro` |
-| `CP_BENCH_SIZES` | 1000,1 |
-| `CP_BENCH_REPS` | 7 |
-| `CP_BENCH_SCALE` | 1: the counts of `bench.st` |
-| `CP_BENCH_ROASSAL_SCALE` | 1, for f, g and h |
-| `CP_BENCH_MODES` | `ffi,basic,all`; only `ffi` on a VM without the plugin |
-| `CP_BENCH_MICRO_CALLS` | 200000 |
-| `CP_BENCH_VM` | the name of the VM in the lines: `native-cog`, `wasm-node` or `wasm-web` |
+- `CP_BENCH_SCENES` (names separated by commas, default all and `micro`);
+- `CP_BENCH_SIZES` (1000,1);
+- `CP_BENCH_REPS` (7);
+- `CP_BENCH_SCALE` (1: the counts of `bench.st`);
+- `CP_BENCH_ROASSAL_SCALE` (1, for f, g and h);
+- `CP_BENCH_MODES` (`ffi,basic,all`; only `ffi` on a VM without the plugin);
+- `CP_BENCH_MICRO_CALLS` (200000);
+- `CP_BENCH_VM` (the name of the VM in the lines: `native-cog`, `wasm-node` or `wasm-web`).
 
 At the end the groups installed, wanted and the binding are restored.
 "

@@ -2,7 +2,7 @@
 I check the parts of criterion C8 of the CairoPlugin (`docs/CairoPlugin.md`) that run in one session:
 
 - `CairoPlugin startUp: true` after an unbind binds again and installs the wanted groups on a VM with the plugin, and uninstalls them, keeping them wanted, on a VM without it;
-- a NULL handle (what every ExternalAddress of a previous session is at an image start) is refused by the primitives, so the patched methods fall back to the FFI.
+- a NULL handle (what every `ExternalAddress` of a previous session is at an image start) is refused by the primitives, so the patched methods fall back to the FFI.
 
 `plugin/tests/run-st-tests.sh` checks the rest across image restarts (saved installed, restarted on the plugin VM, then on a VM without the plugin in another directory: exactly one libcairo loaded).
 "

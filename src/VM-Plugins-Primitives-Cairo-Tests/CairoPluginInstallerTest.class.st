@@ -3,9 +3,9 @@ I check criterion C7 of the CairoPlugin (`docs/CairoPlugin.md`), the installer:
 
 - after a warm-up (every scene drawn once, the garbage collected: uFFI has generated every callout), `install` then `uninstall` leaves every target class and metaclass as it was (the same selectors, uFFI's source stub at each patched selector, the identical methods elsewhere, the same protocols), Athens-Cairo is not marked modified (Monticello, the package) and Epicea logs nothing;
 - a reinstall compiles nothing (the `.changes` file does not grow);
-- install twice is install once, and so is uninstall;
-- drift is reported by verify, kept by uninstall, healed by install;
-- a uFFI overwrite is healed by verify;
+- `install` twice is `install` once, and so is `uninstall`;
+- drift is reported by `verify`, kept by `uninstall`, healed by `install`;
+- a uFFI overwrite is healed by `verify`;
 - a collision, a changed replicated method and a subclass override are refused.
 
 I run on every VM: with the plugin through `install:`, without it through `forceInstall:` (the guards apply alike).
