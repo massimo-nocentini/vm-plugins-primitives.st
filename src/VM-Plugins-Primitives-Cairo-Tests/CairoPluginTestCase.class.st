@@ -1,7 +1,10 @@
 "
-I am the abstract superclass of the tests of the CairoPlugin (pharo-vm: plugins/CairoPlugin, docs/CairoPlugin.md). My setUp saves what the tests change, my tearDown restores it: the installed groups, the wanted groups and whether the plugin was bound (the tests switch modes, unbind, force installs).
+I am the abstract superclass of the tests of the CairoPlugin (pharo-vm: `plugins/CairoPlugin`, `docs/CairoPlugin.md`). My `setUp` saves what the tests change, my `tearDown` restores it: the installed groups, the wanted groups and whether the plugin was bound (the tests switch modes, unbind, force installs).
 
-The tests that need the plugin skip themselves without it, with a reason (`skipUnlessPlugin`), as do those that need its drawing primitives when the plugin of the VM is the stub of a partial build (`skipUnlessImplemented:`); plugin/run-st-tests.sh counts the skips and fails when the plugin was expected. The tests of a VM without the plugin are not applicable with it (`skipWithPlugin`): CairoPluginTestRunner reports them apart. The time limit is 300 seconds (the WebAssembly interpreter is about 30 times slower than Cog). The scenes are `CairoPluginScenes fromEnvironment` (scale 0.05 by default).
+- The tests that need the plugin skip themselves without it, with a reason (`skipUnlessPlugin`), as do those that need its drawing primitives when the plugin of the VM is the stub of a partial build (`skipUnlessImplemented:`); `plugin/run-st-tests.sh` counts the skips and fails when the plugin was expected.
+- The tests of a VM without the plugin are not applicable with it (`skipWithPlugin`): `CairoPluginTestRunner` reports them apart.
+
+The time limit is 300 seconds (the WebAssembly interpreter is about 30 times slower than Cog). The scenes are `CairoPluginScenes fromEnvironment` (scale 0.05 by default).
 "
 Class {
 	#name : 'CairoPluginTestCase',

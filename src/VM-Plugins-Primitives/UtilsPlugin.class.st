@@ -1,7 +1,8 @@
 "
-I am the image side of the UtilsPlugin of the Pharo VM (pharo-vm: plugins/UtilsPlugin; docs/UtilsPlugin.md is the contract).
+I am the image side of the UtilsPlugin of the Pharo VM (pharo-vm: `plugins/UtilsPlugin`; `docs/UtilsPlugin.md` is the contract).
 
 The plugin has the primitives of:
+
 - `Float>>#times:plus:`, the fused multiply-add (C's `fma`: one rounding);
 - `String>>#strtok:inclusive:`, the pieces of a string between delimiters;
 - `SequenceableCollection>>#bezierPointsAt:` and my `deCasteljau:into:at:`, the points of a Bezier curve;

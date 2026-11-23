@@ -1,17 +1,27 @@
 "
-I am the image side of the CairoPlugin of the Pharo VM (pharo-vm: plugins/CairoPlugin; docs/CairoPlugin.md is the contract): Athens drawing through cairo with named primitives instead of uFFI's callouts, on the same libcairo the FFI loads.
+I am the image side of the CairoPlugin of the Pharo VM (pharo-vm: `plugins/CairoPlugin`; `docs/CairoPlugin.md` is the contract): Athens drawing through cairo with named primitives instead of uFFI's callouts, on the same libcairo the FFI loads.
+
+## Groups
 
 Loading the package on a VM with the plugin binds it and installs every group (see below; on a VM without it, it changes nothing); `CairoPlugin install` binds the plugin to cairo (`bind`) and patches the hot methods of Athens-Cairo at run time, by group:
-- `#basic`: one primitive per FFI callout (newPath, moveToX:Y:, fill, the matrix functions, ...);
-- `#shape`: `AthensCairoCanvas>>draw` of a Rectangle or an AthensCairoPath painted with a Color or a stroke of a Color, in one primitive;
-- `#text`: `drawString:` (`CairoFreetypeFontRenderer>>renderCharacters:from:to:`) in one primitive, for ByteString, ByteSymbol, WideString and WideSymbol (UTF-8 by simdutf in the plugin).
 
-Each patch keeps the original under `ffi<Selector>` and falls back to it when its primitive fails (no plugin, unbound, an argument the plugin does not take), so Athens draws the same pixels with or without the plugin. `CairoPlugin uninstall` restores the originals exactly. The patches are installed with the system announcements suspended: Athens-Cairo is not marked modified and Epicea logs nothing (a first install writes the sources of the `ffi…` copies to the .changes file, and on Pharo 14 and later an uninstall writes their removals there).
+- `#basic`: one primitive per FFI callout (`newPath`, `moveToX:Y:`, `fill`, the matrix functions, ...);
+- `#shape`: `AthensCairoCanvas>>draw` of a Rectangle or an `AthensCairoPath` painted with a Color or a stroke of a Color, in one primitive;
+- `#text`: `drawString:` (`CairoFreetypeFontRenderer>>renderCharacters:from:to:`) in one primitive, for `ByteString`, `ByteSymbol`, `WideString` and `WideSymbol` (UTF-8 by simdutf in the plugin).
+
+## Patches
+
+Each patch keeps the original under `ffi<Selector>` and falls back to it when its primitive fails (no plugin, unbound, an argument the plugin does not take), so Athens draws the same pixels with or without the plugin. `CairoPlugin uninstall` restores the originals exactly.
+
+The patches are installed with the system announcements suspended: Athens-Cairo is not marked modified and Epicea logs nothing (a first install writes the sources of the `ffi…` copies to the `.changes` file, and on Pharo 14 and later an uninstall writes their removals there).
+
+## Protocol
 
 - `CairoPlugin info` answers `{ protocol. version. 'native'/'emscripten'. cairo version or nil. 'loader'/'static'. missing symbol or nil. missing optional symbols }`, or nil when the VM has no CairoPlugin (`isAvailable`).
 - Loading the package installs every group when the VM has the plugin (never without it: a patch whose primitive is missing costs ~60 ns per call); at each image start (`startUp:`) the plugin is bound again and the wanted groups installed, or uninstalled when the VM has no plugin (they are installed again on a later start with one).
 - Loading a newer version of the package over installed patches replaces those it compiles differently (`refreshAfterLoad`, the baseline's post-load; `install` and every start do it too).
-- `verify` checks the installed patches; `counters`, `primitiveCounters` and `resetCounters` count the cairo calls and the primitive calls made by the plugin.
+- `verify` checks the installed patches.
+- `counters`, `primitiveCounters` and `resetCounters` count the cairo calls and the primitive calls made by the plugin.
 "
 Class {
 	#name : 'CairoPlugin',

@@ -1,8 +1,13 @@
 "
-I record one change `CairoPluginInstaller` made to an Athens class, so that it can be undone exactly and redone without compiling:
+I record one change `CairoPluginInstaller` made to an Athens class, so that it can be undone exactly and redone without compiling.
 
-- kind `#patch`: the method at `selector` was replaced by `method` (compiled from `source`, with the pragma `<cairoPluginPatch: group>`); `original` is the method that was there, as uFFI's source stub (`m propertyAt: #ffiNonCompiledMethod ifAbsent: [ m ]`: never a callout uFFI generated, which is bound to the libcairo path of the session that generated it), in the protocol `originalProtocol`; `ffiCopy` is the copy of the original compiled under `ffiSelector` (the fallback of the patch), `added` my records of kind `#added`;
-- kind `#added`: `method` (from `source`, with the pragma `<cairoPluginAdded: group patch: selector>`) was added at `selector`, in `originalProtocol`.
+Kind `#patch`: the method at `selector` was replaced by `method` (compiled from `source`, with the pragma `<cairoPluginPatch: group>`):
+
+- `original` is the method that was there, as uFFI's source stub (`m propertyAt: #ffiNonCompiledMethod ifAbsent: [ m ]`: never a callout uFFI generated, which is bound to the libcairo path of the session that generated it), in the protocol `originalProtocol`;
+- `ffiCopy` is the copy of the original compiled under `ffiSelector` (the fallback of the patch);
+- `added` my records of kind `#added`.
+
+Kind `#added`: `method` (from `source`, with the pragma `<cairoPluginAdded: group patch: selector>`) was added at `selector`, in `originalProtocol`.
 
 After an uninstall the installer keeps me in its cache: a later install of the same original reuses my compiled methods.
 "

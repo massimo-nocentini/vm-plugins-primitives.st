@@ -1,5 +1,5 @@
 "
-I mirror AthensCairoPathBuilder: I declare exactly its instance variables, in its order, so that my methods compile here and, unchanged, in AthensCairoPathBuilder (see CairoPluginMirrorAthensCairoCanvas). I am never instantiated.
+I mirror `AthensCairoPathBuilder`: I declare exactly its instance variables, in its order, so that my methods compile here and, unchanged, in `AthensCairoPathBuilder` (see `CairoPluginMirrorAthensCairoCanvas`). I am never instantiated.
 "
 Class {
 	#name : 'CairoPluginMirrorAthensCairoPathBuilder',

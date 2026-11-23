@@ -1,5 +1,10 @@
 "
-I compute the layout table that `CairoPlugin bind` passes to the CairoPlugin (pharo-vm: plugins/CairoPlugin/include/common/cpLayout.h, docs/CairoPlugin.md): an Array of 33 elements, positions 1 to 29 SmallIntegers (the 0-based indices of the slots the plugin reads in the Athens objects, computed by name from the running image as uFFI computes its `instVarAt:` indices, and the Color constants), positions 30 to 33 the four string classes the text primitive takes (ByteString, ByteSymbol, WideString, WideSymbol).
+I compute the layout table that `CairoPlugin bind` passes to the CairoPlugin (pharo-vm: `plugins/CairoPlugin/include/common/cpLayout.h`, `docs/CairoPlugin.md`), an Array of 33 elements:
+
+- positions 1 to 29: SmallIntegers (the 0-based indices of the slots the plugin reads in the Athens objects, computed by name from the running image as uFFI computes its `instVarAt:` indices, and the Color constants);
+- positions 30 to 33: the four string classes the text primitive takes (`ByteString`, `ByteSymbol`, `WideString`, `WideSymbol`).
+
+My protocol:
 
 - `CairoPluginLayout current` answers the Array, or nil when the image does not have a slot or a class variable the plugin needs (then `CairoPluginLayout problem` says which, and the plugin is neither bound nor installed); `CairoPluginLayout integers` its first 29 elements.
 - `CairoPluginLayout entries` is the table: one row per position, `{ position. name. kind. className. variable }`.

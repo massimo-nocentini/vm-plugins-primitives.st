@@ -1,7 +1,14 @@
 "
-I check criteria C1 and C3 of the CairoPlugin (docs/CairoPlugin.md): every scene of `CairoPluginScenes` draws the same pixels (the same bytes of the surface) in the modes `#ffi` (stock Athens), `#basic`, `#all` and `#fallback` (installed, the plugin unbound), and the patched methods answer what the stock ones answer. The text tests (Amendment A1) draw ByteStrings, ByteSymbols, WideStrings and WideSymbols of several scripts, random valid WideStrings, WideStrings that UTF-8 cannot encode (every mode signals the stock error), and the kerning path (forced: the stock fonts have no kerning).
+I check criteria C1 and C3 of the CairoPlugin (`docs/CairoPlugin.md`): every scene of `CairoPluginScenes` draws the same pixels (the same bytes of the surface) in the modes `#ffi` (stock Athens), `#basic`, `#all` and `#fallback` (installed, the plugin unbound), and the patched methods answer what the stock ones answer.
 
-On a VM without the plugin I compare #fallback only, and with a plugin that does not implement every group the modes it can draw; then I skip myself, saying which modes I left out.
+The text tests (Amendment A1) draw:
+
+- ByteStrings, ByteSymbols, WideStrings and WideSymbols of several scripts,
+- random valid WideStrings,
+- WideStrings that UTF-8 cannot encode (every mode signals the stock error),
+- and the kerning path (forced: the stock fonts have no kerning).
+
+On a VM without the plugin I compare `#fallback` only, and with a plugin that does not implement every group the modes it can draw; then I skip myself, saying which modes I left out.
 "
 Class {
 	#name : 'CairoPluginParityTest',

@@ -1,5 +1,6 @@
 "
-I am the abstract superclass of the tests of the package VM-Plugins-Primitives. Each of my subclasses runs every test twice, with the parameter `backend`:
+I am the abstract superclass of the tests of the package `VM-Plugins-Primitives`. Each of my subclasses runs every test twice, with the parameter `backend`:
+
 - `#plugin`: through the UtilsPlugin of the VM (skipped when the VM has none);
 - `#smalltalk`: with the plugin hidden (`UtilsPlugin pluginHidden: true`), through `UtilsPluginSmalltalk`, as on a VM without the plugin.
 "

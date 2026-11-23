@@ -1,5 +1,5 @@
 "
-I test the contract of the primitives of the UtilsPlugin (docs/UtilsPlugin.md): what they answer, and that they fail, leaving their arguments alone, on what they do not take (their Smalltalk twins then answer, or signal the error). I run with the plugin only.
+I test the contract of the primitives of the UtilsPlugin (`docs/UtilsPlugin.md`): what they answer, and that they fail, leaving their arguments alone, on what they do not take (their Smalltalk twins then answer, or signal the error). I run with the plugin only.
 "
 Class {
 	#name : 'UtilsPluginPrimitiveTest',

@@ -1,13 +1,22 @@
 "
-I run the tests of the CairoPlugin (the concrete subclasses of `CairoPluginTestCase`) and report each one with its outcome, and the reason of each skip, which the JUnit files of Pharo's test command leave out (a skipped test is a pass there): plugin/tests/run-st-tests.sh and the WebAssembly lane of pharo-vm fail when the plugin was expected and a test skipped itself.
+I run the tests of the CairoPlugin (the concrete subclasses of `CairoPluginTestCase`) and report each one with its outcome, and the reason of each skip, which the JUnit files of Pharo's test command leave out (a skipped test is a pass there): `plugin/tests/run-st-tests.sh` and the WebAssembly lane of pharo-vm fail when the plugin was expected and a test skipped itself.
 
-	CairoPluginTestRunner runOn: Stdio stdout junit: 'cairo-tests.xml'
+```smalltalk
+CairoPluginTestRunner runOn: Stdio stdout junit: 'cairo-tests.xml'
+```
 
-prints a line a test, 'PASS', 'SKIP', 'FAIL', 'ERROR' or 'N/A' (a test of a VM without the plugin, on a VM with it: not a skip), the test, its time and the reason or the error, then the summary
+prints a line a test, `'PASS'`, `'SKIP'`, `'FAIL'`, `'ERROR'` or `'N/A'` (a test of a VM without the plugin, on a VM with it: not a skip), the test, its time and the reason or the error, then the summary
 
-	CairoPluginTests: <run> run, <passed> passed, <failures> failures, <errors> errors, <skipped> skipped, <n> not applicable; plugin <CairoPlugin info>; installed <groups>; scenes scale <s> size <n>
+```text
+CairoPluginTests: <run> run, <passed> passed, <failures> failures,
+  <errors> errors, <skipped> skipped, <n> not applicable;
+  plugin <CairoPlugin info>; installed <groups>;
+  scenes scale <s> size <n>
+```
 
-and writes a JUnit file (with the skips as skipped elements) when given a path. `runClasses:on:junit:` runs some of the classes only. The answer is { run. passed. failures. errors. skipped. not applicable }.
+and writes a JUnit file (with the skips as skipped elements) when given a path.
+
+`runClasses:on:junit:` runs some of the classes only. The answer is `{ run. passed. failures. errors. skipped. not applicable }`.
 "
 Class {
 	#name : 'CairoPluginTestRunner',

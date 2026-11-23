@@ -1,9 +1,11 @@
 "
 I am the lagged Fibonacci generator of fractions of Knuth's The Art of Computer Programming, volume 2, section 3.6 (3rd edition, 9th printing): his `rng-double.c`, `ranf_start` and `ranf_arr_next`, which the UtilsPlugin runs unchanged (and `UtilsPluginSmalltalk` translates, bit for bit, on a VM without it).
 
-I am a `Random`, so I answer its protocol: `next` (a Float in [0, 1)), `next:`, `nextInteger:`, `nextBetween:and:`, `nextIntegerBetween:and:`, and I can shuffle a collection (`shuffleBy:`). My state is the `state` of `Random`, an Array (see `UtilsPluginSmalltalk`), and my seed its `seed`: only its low 30 bits count, as Knuth's `seed & 0x3fffffff`, and `seed` answers them.
+I am a `Random`, so I answer its protocol: `next` (a Float in [0, 1)), `next:`, `nextInteger:`, `nextBetween:and:`, `nextIntegerBetween:and:`, and I can shuffle a collection (`shuffleBy:`).
 
-```
+My state is the `state` of `Random`, an Array (see `UtilsPluginSmalltalk`), and my seed its `seed`: only its low 30 bits count, as Knuth's `seed & 0x3fffffff`, and `seed` answers them.
+
+```smalltalk
 (KnuthRandom seed: 310952) next: 3.
 KnuthRandom new nextInteger: 6.
 ```

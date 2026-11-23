@@ -1,7 +1,9 @@
 "
-I hold one method per drawing primitive of the CairoPlugin (pharo-vm: plugins/CairoPlugin/tests/primitives.txt), for the tests of the primitives' contract (`CairoPluginPrimitiveTest`): each runs its named primitive with no fallback, and answers what the primitive answers, or a `CairoPluginPrimitiveFailure` holding the failure code.
+I hold one method per drawing primitive of the CairoPlugin (pharo-vm: `plugins/CairoPlugin/tests/primitives.txt`), for the tests of the primitives' contract (`CairoPluginPrimitiveTest`): each runs its named primitive with no fallback, and answers what the primitive answers, or a `CairoPluginPrimitiveFailure` holding the failure code.
 
-My methods are never sent to my instances: `CairoPluginTestSupport class>>#primitive:receiver:arguments:` runs them with any receiver (`CompiledMethod>>#valueWithReceiver:arguments:`), an Athens object or a corrupted copy of one, as the patched Athens methods do. A selector is the primitive's name, with `with:` keywords for the arguments after the first: `primitiveBuilderMoveTo:with:`. The methods whose selector ends with `WrongArity` call a primitive with one argument too many or too few.
+My methods are never sent to my instances: `CairoPluginTestSupport class>>#primitive:receiver:arguments:` runs them with any receiver (`CompiledMethod>>#valueWithReceiver:arguments:`), an Athens object or a corrupted copy of one, as the patched Athens methods do.
+
+A selector is the primitive's name, with `with:` keywords for the arguments after the first: `primitiveBuilderMoveTo:with:`. The methods whose selector ends with `WrongArity` call a primitive with one argument too many or too few.
 "
 Class {
 	#name : 'CairoPluginTestPrimitives',

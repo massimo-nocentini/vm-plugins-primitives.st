@@ -1,5 +1,5 @@
 "
-I mirror CairoFreetypeFontRenderer: I declare exactly its instance variables, in its order, so that my methods compile here and, unchanged, in CairoFreetypeFontRenderer (see CairoPluginMirrorAthensCairoCanvas). I am never instantiated.
+I mirror `CairoFreetypeFontRenderer`: I declare exactly its instance variables, in its order, so that my methods compile here and, unchanged, in `CairoFreetypeFontRenderer` (see `CairoPluginMirrorAthensCairoCanvas`). I am never instantiated.
 "
 Class {
 	#name : 'CairoPluginMirrorCairoFreetypeFontRenderer',

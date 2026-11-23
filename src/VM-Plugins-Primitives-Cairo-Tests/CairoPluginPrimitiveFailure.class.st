@@ -1,5 +1,5 @@
 "
-I am what a method of `CairoPluginTestPrimitives` answers when its primitive fails: the failure code (a Symbol such as #'bad receiver', or nil when the primitive is missing) is my `code`.
+I am what a method of `CairoPluginTestPrimitives` answers when its primitive fails: the failure code (a Symbol such as `#'bad receiver'`, or nil when the primitive is missing) is my `code`.
 "
 Class {
 	#name : 'CairoPluginPrimitiveFailure',

@@ -1,17 +1,85 @@
 "
-I measure Athens drawing through the FFI against the CairoPlugin, in one image and one VM (pharo-vm, plugins/CairoPlugin/bench, docs/CairoPlugin.md):
+I measure Athens drawing through the FFI against the CairoPlugin, in one image and one VM (pharo-vm, `plugins/CairoPlugin/bench`, `docs/CairoPlugin.md`).
 
-- the modes: `#ffi` (nothing installed: stock Athens), `#basic` (the one-for-one primitives) and `#all` (basic, shape and text), switched with the installer (`CairoPluginTestSupport setMode:`; from the second switch on, the installer reinstalls from its cache and compiles nothing);
-- the scenes: those of `CairoPluginScenes` (a-polyline, a2-lines, b-rects, c-bezier, d-transforms, e-text and its variants e-text-wide (WideStrings) and e-text-long (strings of 2000 characters, one WideString in four)), the Roassal graph drawn by `RSAthensRenderer` with its paths built at each run (f-roassal-first) or cached (f-roassal-cached), the same on an SVG surface (g-roassal-svg-first/cached), and h-morph-frame: an `RSAthensMorph` of that graph drawn on a FormCanvas of 800 x 600, end to end (Roassal, then `asForm` and the SurfacePlugin callbacks of BitBlt, which stay on the FFI); each at surface sizes 1000 and 1 (the 1 px control: the same calls, nothing to rasterize);
-- the micro-benchmarks (`micro`): ns per call of single patched methods, with the controls: an empty Smalltalk loop, the Smalltalk side of a void FFI callout (the runner skips the call), an FFI callout of cairo_version (an empty C function), and a named primitive that does nothing (the FilePlugin's primitiveDirectoryDelimitor, which answers a Character); each control's time includes the loop's (ctl-loop), which summarize.py subtracts in its net column.
+## The modes
 
-Per scene and size: the data are built once; then, untimed, each mode draws the scene once (uFFI generates its callouts, the fonts are made) and once more counted (the FFI callouts by cairo function and by calling method, the plugin's cairo calls and primitive calls) and fingerprinted (the pixels); then N repetitions, the modes in a rotating order (ffi basic all, basic all ffi, all ffi basic, ...), each run after a mode switch, an untimed warm-up run and a garbage collection. I print a line per scene, size and mode:
+- `#ffi` (nothing installed: stock Athens),
+- `#basic` (the one-for-one primitives)
+- and `#all` (basic, shape and text),
 
-	BENCH <pharo> <vm> cairo=<x.y.z> <scene> <size> <mode> median_ms=<f> best_ms=<f> spread_ms=<f> ffi=<n> prims=<n> cairo=<n> sha=<12 hex> drift_ms=<f> runs=<N> calls=<n> [PIXELS-DIFFER] [CALLS-DIFFER] [FALLBACK <what>=<n> ...]
+switched with the installer (`CairoPluginTestSupport setMode:`; from the second switch on, the installer reinstalls from its cache and compiles nothing).
 
-where spread is max - min of the runs (the noise figure of #ffi), drift the median of the first half of the runs minus that of the second half, ffi the FFI callouts, prims the plugin's primitive calls, cairo the plugin's cairo calls, calls the cairo calls of both but the *_destroy ones (finalization), sha the fingerprint of the pixels (the first 12 hex digits of the SHA-256 of the CRC-32s of the 64 KiB chunks of the surface bytes: a full SHA-256 takes seconds per surface in Smalltalk, minutes on the WebAssembly VMs). PIXELS-DIFFER: the fingerprint differs from #ffi's; CALLS-DIFFER: the calls of a cairo function (FFI callouts plus the plugin's calls, without the *_destroy ones) differ from #ffi's, followed by the functions that differ ('cairo_fill=3/2', at most 5); FALLBACK: in a plugin mode, an ffi copy of a patched method made callouts, or a cairo function that an installed group covers (`CairoPluginInstaller coveredFunctions`) was called through the FFI: a primitive failed and its method fell back. The three count as failures (`runOn:` answers their number). A line CALLS lists the calls by function, and MICRO, COND and SKIP lines give the micro-benchmarks, the conditions and what was not run.
+## The scenes
 
-The parameters come from the environment (`fromEnvironment`): CP_BENCH_SCENES (names separated by commas, default all and micro), CP_BENCH_SIZES (1000,1), CP_BENCH_REPS (7), CP_BENCH_SCALE (1: the counts of bench.st), CP_BENCH_ROASSAL_SCALE (1, for f, g and h), CP_BENCH_MODES (ffi,basic,all; only ffi on a VM without the plugin), CP_BENCH_MICRO_CALLS (200000), CP_BENCH_VM (the name of the VM in the lines: native-cog, wasm-node or wasm-web). At the end the groups installed, wanted and the binding are restored.
+- those of `CairoPluginScenes` (`a-polyline`, `a2-lines`, `b-rects`, `c-bezier`, `d-transforms`, `e-text` and its variants `e-text-wide` (WideStrings) and `e-text-long` (strings of 2000 characters, one WideString in four)),
+- the Roassal graph drawn by `RSAthensRenderer` with its paths built at each run (`f-roassal-first`) or cached (`f-roassal-cached`),
+- the same on an SVG surface (`g-roassal-svg-first/cached`),
+- and `h-morph-frame`: an `RSAthensMorph` of that graph drawn on a `FormCanvas` of 800 x 600, end to end (Roassal, then `asForm` and the SurfacePlugin callbacks of BitBlt, which stay on the FFI);
+
+each at surface sizes 1000 and 1 (the 1 px control: the same calls, nothing to rasterize).
+
+## The micro-benchmarks (`micro`)
+
+ns per call of single patched methods, with the controls:
+
+- an empty Smalltalk loop,
+- the Smalltalk side of a void FFI callout (the runner skips the call),
+- an FFI callout of `cairo_version` (an empty C function),
+- and a named primitive that does nothing (the FilePlugin's `primitiveDirectoryDelimitor`, which answers a Character);
+
+each control's time includes the loop's (`ctl-loop`), which `summarize.py` subtracts in its net column.
+
+## Per scene and size
+
+1. The data are built once;
+2. then, untimed, each mode draws the scene once (uFFI generates its callouts, the fonts are made) and once more counted (the FFI callouts by cairo function and by calling method, the plugin's cairo calls and primitive calls) and fingerprinted (the pixels);
+3. then N repetitions, the modes in a rotating order (`ffi basic all`, `basic all ffi`, `all ffi basic`, ...), each run after a mode switch, an untimed warm-up run and a garbage collection.
+
+## The output
+
+I print a line per scene, size and mode:
+
+```text
+BENCH <pharo> <vm> cairo=<x.y.z> <scene> <size> <mode>
+  median_ms=<f> best_ms=<f> spread_ms=<f> ffi=<n> prims=<n> cairo=<n>
+  sha=<12 hex> drift_ms=<f> runs=<N> calls=<n>
+  [PIXELS-DIFFER] [CALLS-DIFFER] [FALLBACK <what>=<n> ...]
+```
+
+where
+
+- `spread` is max - min of the runs (the noise figure of `#ffi`),
+- `drift` the median of the first half of the runs minus that of the second half,
+- `ffi` the FFI callouts,
+- `prims` the plugin's primitive calls,
+- `cairo` the plugin's cairo calls,
+- `calls` the cairo calls of both but the `*_destroy` ones (finalization),
+- `sha` the fingerprint of the pixels (the first 12 hex digits of the SHA-256 of the CRC-32s of the 64 KiB chunks of the surface bytes: a full SHA-256 takes seconds per surface in Smalltalk, minutes on the WebAssembly VMs).
+
+The flags:
+
+- `PIXELS-DIFFER`: the fingerprint differs from `#ffi`'s;
+- `CALLS-DIFFER`: the calls of a cairo function (FFI callouts plus the plugin's calls, without the `*_destroy` ones) differ from `#ffi`'s, followed by the functions that differ (`'cairo_fill=3/2'`, at most 5);
+- `FALLBACK`: in a plugin mode, an ffi copy of a patched method made callouts, or a cairo function that an installed group covers (`CairoPluginInstaller coveredFunctions`) was called through the FFI: a primitive failed and its method fell back.
+
+The three count as failures (`runOn:` answers their number). A line `CALLS` lists the calls by function, and `MICRO`, `COND` and `SKIP` lines give the micro-benchmarks, the conditions and what was not run.
+
+## The parameters
+
+The parameters come from the environment (`fromEnvironment`):
+
+| Variable | Value |
+|---|---|
+| `CP_BENCH_SCENES` | names separated by commas, default all and `micro` |
+| `CP_BENCH_SIZES` | 1000,1 |
+| `CP_BENCH_REPS` | 7 |
+| `CP_BENCH_SCALE` | 1: the counts of `bench.st` |
+| `CP_BENCH_ROASSAL_SCALE` | 1, for f, g and h |
+| `CP_BENCH_MODES` | `ffi,basic,all`; only `ffi` on a VM without the plugin |
+| `CP_BENCH_MICRO_CALLS` | 200000 |
+| `CP_BENCH_VM` | the name of the VM in the lines: `native-cog`, `wasm-node` or `wasm-web` |
+
+At the end the groups installed, wanted and the binding are restored.
 "
 Class {
 	#name : 'CairoPluginBenchmark',

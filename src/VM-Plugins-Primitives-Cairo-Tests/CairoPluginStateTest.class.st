@@ -1,5 +1,7 @@
 "
-I check criterion C2 of the CairoPlugin (docs/CairoPlugin.md): after each shape and text primitive (and a few one-for-one ones), the cairo state of the canvas (`CairoPluginTestSupport stateOf:`: the matrix bit for bit, the source, the line width, join and cap, the dashes, the current point, the fill rule, the operator, the font matrix, the antialiasing, the scaled font) is the state the same Athens calls leave in #ffi mode. Without the plugin, or with a plugin that does not implement every group, I compare the modes it can draw, then skip myself saying so.
+I check criterion C2 of the CairoPlugin (`docs/CairoPlugin.md`): after each shape and text primitive (and a few one-for-one ones), the cairo state of the canvas (`CairoPluginTestSupport stateOf:`: the matrix bit for bit, the source, the line width, join and cap, the dashes, the current point, the fill rule, the operator, the font matrix, the antialiasing, the scaled font) is the state the same Athens calls leave in `#ffi` mode.
+
+Without the plugin, or with a plugin that does not implement every group, I compare the modes it can draw, then skip myself saying so.
 "
 Class {
 	#name : 'CairoPluginStateTest',

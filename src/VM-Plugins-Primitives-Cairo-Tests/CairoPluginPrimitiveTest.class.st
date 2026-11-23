@@ -1,10 +1,42 @@
 "
-I check the contract of the primitives of the CairoPlugin (docs/CairoPlugin.md, plugins/CairoPlugin/tests/primitives.txt), without the fallback of the patched methods (`CairoPluginTestPrimitives`):
+I check the contract of the primitives of the CairoPlugin (`docs/CairoPlugin.md`, `plugins/CairoPlugin/tests/primitives.txt`), without the fallback of the patched methods (`CairoPluginTestPrimitives`).
 
-- C9, the bind: a probe of another function fails with #'inappropriate operation' and leaves the plugin unbound; a nil or NULL probe, or a library that does not load, with #'not found'; a path of 256 bytes with #'bad argument'; a bad layout with #'bad index'; the right probe binds, with the layout of 33 elements (the string classes of the text primitive) or of its 29 integers;
-- the admin primitives: the info (7 elements), the names of the 57 cairo functions and of the 69 primitives, the counters;
-- every drawing primitive succeeds on what Athens passes, answering what the FFI method answers, and counts its cairo calls;
-- C5, failure safety: for each invalid input (an immediate or short receiver, a nil, NULL or wrong-class handle, a Fraction, nil or Float where a number or an integer is expected, a short ByteArray, an ExternalAddress where bytes are expected (its 8 bytes stay unchanged), bytes without a NUL for the C strings, a read-only object to write, a wrong arity, a paint of another class, a fill outside drawDuring:, a WideString UTF-8 cannot encode, an unbound plugin) the primitive fails with the specified code and calls no cairo function (the counters do not change).
+## C9, the bind
+
+- a probe of another function fails with `#'inappropriate operation'` and leaves the plugin unbound;
+- a nil or NULL probe, or a library that does not load, with `#'not found'`;
+- a path of 256 bytes with `#'bad argument'`;
+- a bad layout with `#'bad index'`;
+- the right probe binds, with the layout of 33 elements (the string classes of the text primitive) or of its 29 integers.
+
+## The admin primitives
+
+The info (7 elements), the names of the 57 cairo functions and of the 69 primitives, the counters.
+
+## Every drawing primitive
+
+Succeeds on what Athens passes, answering what the FFI method answers, and counts its cairo calls.
+
+## C5, failure safety
+
+For each invalid input
+
+- an immediate or short receiver,
+- a nil, NULL or wrong-class handle,
+- a Fraction, nil or Float where a number or an integer is expected,
+- a short ByteArray,
+- an ExternalAddress where bytes are expected (its 8 bytes stay unchanged),
+- bytes without a NUL for the C strings,
+- a read-only object to write,
+- a wrong arity,
+- a paint of another class,
+- a fill outside `drawDuring:`,
+- a WideString UTF-8 cannot encode,
+- an unbound plugin
+
+the primitive fails with the specified code and calls no cairo function (the counters do not change).
+
+## What I need
 
 I need the plugin, bound, with its drawing primitives (the stub plugin of a partial build has only the admin ones: then only the bind and admin tests run).
 "

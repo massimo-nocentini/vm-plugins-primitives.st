@@ -1,5 +1,9 @@
 "
-I am one workload of `CairoPluginBenchmark`, at one surface size: what to do before each run (untimed: reset the cached Roassal paths, invalidate a Roassal canvas), the run itself (the part that is timed; it answers a surface, a Form or the name of an SVG file), and how to get the bytes whose fingerprint the modes must share from what the run answered.
+I am one workload of `CairoPluginBenchmark`, at one surface size:
+
+- what to do before each run (untimed: reset the cached Roassal paths, invalidate a Roassal canvas),
+- the run itself (the part that is timed; it answers a surface, a Form or the name of an SVG file),
+- and how to get the bytes whose fingerprint the modes must share from what the run answered.
 "
 Class {
 	#name : 'CairoPluginBenchmarkScene',

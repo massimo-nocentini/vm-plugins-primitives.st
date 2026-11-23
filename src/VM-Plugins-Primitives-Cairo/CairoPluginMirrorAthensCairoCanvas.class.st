@@ -1,5 +1,10 @@
 "
-I mirror AthensCairoCanvas: I declare exactly its instance variables, in its order, so that my methods compile here and, unchanged, in AthensCairoCanvas. They are the hand-written templates that `CairoPluginInstaller` compiles into AthensCairoCanvas: the patched methods have the pragma `<cairoPluginPatch: group>`, the methods they call (added to AthensCairoCanvas) the pragma `<cairoPluginAdded: group patch: selector>`. I am never instantiated.
+I mirror `AthensCairoCanvas`: I declare exactly its instance variables, in its order, so that my methods compile here and, unchanged, in `AthensCairoCanvas`. They are the hand-written templates that `CairoPluginInstaller` compiles into `AthensCairoCanvas`:
+
+- the patched methods have the pragma `<cairoPluginPatch: group>`,
+- the methods they call (added to `AthensCairoCanvas`) the pragma `<cairoPluginAdded: group patch: selector>`.
+
+I am never instantiated.
 "
 Class {
 	#name : 'CairoPluginMirrorAthensCairoCanvas',

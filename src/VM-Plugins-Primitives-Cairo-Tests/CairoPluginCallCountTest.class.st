@@ -1,9 +1,19 @@
 "
-I check criterion C4 of the CairoPlugin (docs/CairoPlugin.md): for every scene, the calls of each cairo function in #basic and #all (the calls the plugin made, `CairoPlugin counters`, plus the FFI callouts left) equal the FFI callouts of #ffi; no patched method fell back to its FFI copy (the no-fallback check of the benchmark); and in #basic the successful calls of each one-for-one primitive equal the FFI callouts of the method it replaces.
+I check criterion C4 of the CairoPlugin (`docs/CairoPlugin.md`):
 
-`testEveryBasicPatchReachesItsPrimitive` checks the wiring of #basic method by method, scenes or not (Athens sends some of its methods from nowhere: primPaint, setPathMatrix:, the matrix initializers): each patched method, sent once (`wiringScenarios`), makes exactly one successful call, of the primitive its row of the table names, calls the cairo functions of its row and no other, and leaves the same answer, matrix, cairo state and pixels as its ffi copy.
+- for every scene, the calls of each cairo function in `#basic` and `#all` (the calls the plugin made, `CairoPlugin counters`, plus the FFI callouts left) equal the FFI callouts of `#ffi`;
+- no patched method fell back to its FFI copy (the no-fallback check of the benchmark);
+- and in `#basic` the successful calls of each one-for-one primitive equal the FFI callouts of the method it replaces.
 
-Each scene is drawn once in #ffi before it is counted (its fonts, renderers and callouts are then made: their cairo calls happen once); then every scene is counted in #ffi, and in each other mode in turn. The `*_destroy` functions are left out (finalization calls them when the garbage collector runs, which differs between runs), and so are the callouts that are not cairo's (LibC's memcpy). Without the plugin I compare #ffi with #fallback (the plugin counts nothing there), then skip myself saying so.
+`testEveryBasicPatchReachesItsPrimitive` checks the wiring of `#basic` method by method, scenes or not (Athens sends some of its methods from nowhere: `primPaint`, `setPathMatrix:`, the matrix initializers): each patched method, sent once (`wiringScenarios`),
+
+- makes exactly one successful call, of the primitive its row of the table names,
+- calls the cairo functions of its row and no other,
+- and leaves the same answer, matrix, cairo state and pixels as its ffi copy.
+
+Each scene is drawn once in `#ffi` before it is counted (its fonts, renderers and callouts are then made: their cairo calls happen once); then every scene is counted in `#ffi`, and in each other mode in turn.
+
+The `*_destroy` functions are left out (finalization calls them when the garbage collector runs, which differs between runs), and so are the callouts that are not cairo's (LibC's `memcpy`). Without the plugin I compare `#ffi` with `#fallback` (the plugin counts nothing there), then skip myself saying so.
 "
 Class {
 	#name : 'CairoPluginCallCountTest',

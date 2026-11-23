@@ -1,5 +1,8 @@
 "
-I check criterion C6 of the CairoPlugin (docs/CairoPlugin.md): with every group installed and the plugin unbound, or on a VM without the plugin with `forceInstall:`, every patched method falls back to its FFI original and every scene draws the pixels of stock Athens; on a VM without the plugin `install` refuses and loading the package installed nothing.
+I check criterion C6 of the CairoPlugin (`docs/CairoPlugin.md`):
+
+- with every group installed and the plugin unbound, or on a VM without the plugin with `forceInstall:`, every patched method falls back to its FFI original and every scene draws the pixels of stock Athens;
+- on a VM without the plugin `install` refuses and loading the package installed nothing.
 
 I run on every VM, with or without the plugin.
 "

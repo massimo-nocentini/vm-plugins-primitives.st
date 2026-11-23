@@ -1,5 +1,11 @@
 "
-I am signalled by `CairoPlugin bind`, `CairoPlugin install:` and the bind primitive when the CairoPlugin cannot be used: `code` is the failure Symbol of the primitive (`#'not found'`, `#'inappropriate operation'`, `#'bad index'`, `#'bad argument'`, `#'unsupported operation'`, ...) or one of the facade's own: `#'no plugin'` (the VM has no CairoPlugin), `#unbound` (installing needs a bound plugin), `#layout` (the image's Athens classes do not have the slots the plugin reads), `#runner` (CairoLibrary does not run its callouts on the VM thread), `#install` (installing a group failed and was undone).
+I am signalled by `CairoPlugin bind`, `CairoPlugin install:` and the bind primitive when the CairoPlugin cannot be used: `code` is the failure Symbol of the primitive (`#'not found'`, `#'inappropriate operation'`, `#'bad index'`, `#'bad argument'`, `#'unsupported operation'`, ...) or one of the facade's own:
+
+- `#'no plugin'` (the VM has no CairoPlugin),
+- `#unbound` (installing needs a bound plugin),
+- `#layout` (the image's Athens classes do not have the slots the plugin reads),
+- `#runner` (`CairoLibrary` does not run its callouts on the VM thread),
+- `#install` (installing a group failed and was undone).
 "
 Class {
 	#name : 'CairoPluginError',

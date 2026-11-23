@@ -1,12 +1,54 @@
 "
-I am the drawings that the tests and the benchmark of the CairoPlugin make with Athens: each scene is a name and a block taking an AthensCairoCanvas, run on a white surface by `run:`.
+I am the drawings that the tests and the benchmark of the CairoPlugin make with Athens: each scene is a name and a block taking an `AthensCairoCanvas`, run on a white surface by `run:`.
 
-- `benchScenes`: the workloads of the benchmark (the scenes of the design's bench.st, with the same data: `Random seed: 42`, the same counts times `scale`): `a-polyline` (one path of many line segments, stroked), `a2-lines` (many two-point paths, stroked: Roassal's edges), `b-rects` (rectangles filled and stroked), `c-bezier` (Bezier ellipses, filled), `d-transforms` (a rectangle per path transform), `e-text` (short strings, `drawString:`), and the text variants of the SimdUTF encoding: `e-text-wide` (the same strings with one character outside Latin-1, WideStrings) and `e-text-long` (strings of 2000 characters);
-- `roassalScene` (`f-roassal`): a Roassal graph of boxes, ellipses, lines and labels drawn by RSAthensRenderer; `roassalCanvas` builds the graph (the same at each call) for the benchmark, which renders it with `renderRoassal:on:`;
-- `targetedScenes`: small scenes aimed at one path of the plugin each: rectangles of Integers, Floats and both, translucent colors, stroke widths, joins and caps, dashes (nil, empty, an Array), arcs and curves, nested clips, path transforms, paint modes, gradients (pattern paints, through the FFI), the fill rule, Latin-1 text, the empty string, ByteSymbols, WideStrings and WideSymbols of several scripts, long strings, Roassal labels (glyphs) and bordered labels (`textPath:`);
-- `paritySceneNames`/`sceneNamed:`: all of them (the benchmark ones and the targeted ones), for the pixel parity of the modes.
+## `benchScenes`
 
-The scenes are drawn in a space of 1000 x 1000: a surface of another `size` is scaled to it. The counts of the benchmark scenes are `scale` times those of bench.st (`scale: 0.05` for the tests, at least 1 of each). `fromEnvironment` reads `CP_SCENE_SCALE` and `CP_SCENE_SIZE`.
+The workloads of the benchmark (the scenes of the design's `bench.st`, with the same data: `Random seed: 42`, the same counts times `scale`):
+
+- `a-polyline` (one path of many line segments, stroked),
+- `a2-lines` (many two-point paths, stroked: Roassal's edges),
+- `b-rects` (rectangles filled and stroked),
+- `c-bezier` (Bezier ellipses, filled),
+- `d-transforms` (a rectangle per path transform),
+- `e-text` (short strings, `drawString:`),
+
+and the text variants of the SimdUTF encoding:
+
+- `e-text-wide` (the same strings with one character outside Latin-1, WideStrings)
+- and `e-text-long` (strings of 2000 characters).
+
+## `roassalScene` (`f-roassal`)
+
+A Roassal graph of boxes, ellipses, lines and labels drawn by `RSAthensRenderer`; `roassalCanvas` builds the graph (the same at each call) for the benchmark, which renders it with `renderRoassal:on:`.
+
+## `targetedScenes`
+
+Small scenes aimed at one path of the plugin each:
+
+- rectangles of Integers, Floats and both,
+- translucent colors,
+- stroke widths, joins and caps,
+- dashes (nil, empty, an Array),
+- arcs and curves,
+- nested clips,
+- path transforms,
+- paint modes,
+- gradients (pattern paints, through the FFI),
+- the fill rule,
+- Latin-1 text,
+- the empty string,
+- ByteSymbols,
+- WideStrings and WideSymbols of several scripts,
+- long strings,
+- Roassal labels (glyphs) and bordered labels (`textPath:`).
+
+## `paritySceneNames`/`sceneNamed:`
+
+All of them (the benchmark ones and the targeted ones), for the pixel parity of the modes.
+
+## Size and scale
+
+The scenes are drawn in a space of 1000 x 1000: a surface of another `size` is scaled to it. The counts of the benchmark scenes are `scale` times those of `bench.st` (`scale: 0.05` for the tests, at least 1 of each). `fromEnvironment` reads `CP_SCENE_SCALE` and `CP_SCENE_SIZE`.
 "
 Class {
 	#name : 'CairoPluginScenes',

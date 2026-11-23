@@ -1,17 +1,38 @@
 "
-I install and uninstall the CairoPlugin's patches of Athens-Cairo, by group (`#basic`, `#shape`, `#text`; docs/CairoPlugin.md of pharo-vm). `CairoPlugin` is the facade: use it, not me.
+I install and uninstall the CairoPlugin's patches of Athens-Cairo, by group (`#basic`, `#shape`, `#text`; `docs/CairoPlugin.md` of pharo-vm). `CairoPlugin` is the facade: use it, not me.
+
+## Installing
 
 Installing a patch of the method at `selector` of an Athens class:
+
 1. the current method is recorded as its uFFI source stub (`propertyAt: #ffiNonCompiledMethod ifAbsent:`), never a callout uFFI generated (bound to the libcairo path of the session that generated it);
 2. its copy is compiled under `ffi<Selector>` (`ffiNewPath`, `ffiDraw`, ...): the keywords of the original source are replaced at their positions;
 3. the methods the patch calls are added (from the mirrors, `<cairoPluginAdded: group patch: selector>`);
 4. the patch is compiled at `selector`: a method `<cairoPluginPatch: group>` whose named primitive of the CairoPlugin does the work, and which falls back to the copy when the primitive fails (no plugin, unbound, an argument the plugin does not take).
 
-Everything runs unpreemptively with the system announcements suspended, so Athens-Cairo is not marked modified (Monticello, Iceberg) and Epicea logs nothing. Uninstalling restores the recorded stubs at once and removes what was added; the records then go to a cache, so a reinstall in the same session compiles nothing. An ffi copy or an added method is removed only once no process runs a patch or an added method of its record (a drawing process preempted inside a patch sends them when it resumes): until then it waits in `pending`, and every install, uninstall and verify tries again.
+Everything runs unpreemptively with the system announcements suspended, so Athens-Cairo is not marked modified (Monticello, Iceberg) and Epicea logs nothing.
 
-An installed patch is kept only while it is what this version of the package compiles (its source and its added methods' sources): an install replaces a stale one (a newer package loaded over an image with the patches of an older one; the baseline's post-load does it at once, `CairoPlugin refreshAfterLoad`), and verify reports it. A group whose guards stop matching after its install (a replicated method changed, a subclass override) is uninstalled by verify and by install, and stays wanted. An ffi copy is recognised as ours by identity, or by its source after a recompilation of its class.
+## Uninstalling
 
-My state (class-side instance variables, saved with the image): `records` (group -> the CairoPluginPatchRecords installed), `cache` (key -> the records of an earlier install), `wantedGroups` (the groups `CairoPlugin startUp:` installs at each start), `lastReport` (what the last install/uninstall/verify skipped or found), `pending` (the removals uninstalls deferred: { record. selector. method }).
+Uninstalling restores the recorded stubs at once and removes what was added; the records then go to a cache, so a reinstall in the same session compiles nothing.
+
+An ffi copy or an added method is removed only once no process runs a patch or an added method of its record (a drawing process preempted inside a patch sends them when it resumes): until then it waits in `pending`, and every install, uninstall and verify tries again.
+
+## What stays installed
+
+- An installed patch is kept only while it is what this version of the package compiles (its source and its added methods' sources): an install replaces a stale one (a newer package loaded over an image with the patches of an older one; the baseline's post-load does it at once, `CairoPlugin refreshAfterLoad`), and verify reports it.
+- A group whose guards stop matching after its install (a replicated method changed, a subclass override) is uninstalled by verify and by install, and stays wanted.
+- An ffi copy is recognised as ours by identity, or by its source after a recompilation of its class.
+
+## My state
+
+Class-side instance variables, saved with the image:
+
+- `records`: group -> the CairoPluginPatchRecords installed;
+- `cache`: key -> the records of an earlier install;
+- `wantedGroups`: the groups `CairoPlugin startUp:` installs at each start;
+- `lastReport`: what the last install/uninstall/verify skipped or found;
+- `pending`: the removals uninstalls deferred: `{ record. selector. method }`.
 "
 Class {
 	#name : 'CairoPluginInstaller',

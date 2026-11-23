@@ -1,11 +1,11 @@
 "
 I am the Smalltalk twin of the UtilsPlugin (see `UtilsPlugin`): each of my class methods answers what the plugin's primitive answers, bit for bit, or signals the error for the arguments it fails on. The image uses me on a VM without the plugin, after a primitive failed, and when `UtilsPlugin pluginHidden` is true.
 
-- `fma:times:plus:` is C's `fma`, exactly: the exact value of x * y + z (with Fractions), rounded once to the nearest Float, with IEEE 754's signed zeros, infinities and NaNs.
+- `fma:times:plus:` is C's `fma`, exactly: the exact value of `x * y + z` (with Fractions), rounded once to the nearest Float, with IEEE 754's signed zeros, infinities and NaNs.
 - `split:by:inclusive:` is the splitting of `primitive_strtok_r`.
-- `deCasteljau:into:at:` repeats the roundings of the engine's `up_bezier`, in the same order, with my `fma:times:plus:` and an IEEE division (no ZeroDivide).
-- `newKnuthState`, `knuthStart:seed:` and `knuthNext:` translate `ranf_start`, `ranf_array` and `ranf_arr_next` of Knuth's `rng-double.c` (TAOCP 3.6, 3rd edition, 9th printing), which the plugin runs unchanged, on the same state: { ByteArray of the 100 doubles of ran_u. ByteArray of the 1009 doubles of the buffer. 1-based index of its next fraction }. A state may go from the plugin to me and back.
-- `splitMix64Next:`, `splitMix64NextFloat:` and `splitMix64OutputsOf:into:` translate `next()` of Vigna's `splitmix64.c`, which the plugin runs unchanged, on the same state, a DoubleWordArray of 1 (his x), each product and sum taken modulo 2^64.
+- `deCasteljau:into:at:` repeats the roundings of the engine's `up_bezier`, in the same order, with my `fma:times:plus:` and an IEEE division (no `ZeroDivide`).
+- `newKnuthState`, `knuthStart:seed:` and `knuthNext:` translate `ranf_start`, `ranf_array` and `ranf_arr_next` of Knuth's `rng-double.c` (TAOCP 3.6, 3rd edition, 9th printing), which the plugin runs unchanged, on the same state: `{ ByteArray of the 100 doubles of ran_u. ByteArray of the 1009 doubles of the buffer. 1-based index of its next fraction }`. A state may go from the plugin to me and back.
+- `splitMix64Next:`, `splitMix64NextFloat:` and `splitMix64OutputsOf:into:` translate `next()` of Vigna's `splitmix64.c`, which the plugin runs unchanged, on the same state, a `DoubleWordArray` of 1 (his `x`), each product and sum taken modulo 2^64.
 "
 Class {
 	#name : 'UtilsPluginSmalltalk',
